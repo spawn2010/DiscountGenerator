@@ -27,5 +27,5 @@ Route::get('/discount', [App\Http\Controllers\DiscountController::class, 'index'
 Route::post('/discount/create', [App\Http\Controllers\DiscountController::class, 'createDiscount']);
 
 Route::post('/discount/check', [App\Http\Controllers\DiscountController::class, 'checkDiscount']);
-Route::get('/discount/test', [App\Http\Controllers\DiscountController::class, 'test']);
+
 
