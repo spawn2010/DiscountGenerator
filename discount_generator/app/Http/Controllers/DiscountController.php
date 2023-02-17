@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Discount;
 use App\Models\User;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -12,7 +15,20 @@ use PHPUnit\Exception;
 
 class DiscountController extends Controller
 {
-    public function index(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Contracts\Foundation\Application
+    /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
+    /**
+     * @return Factory|View|Application
+     */
+    public function index(): Factory|View|Application
     {
         return view('discount');
     }
@@ -33,24 +49,24 @@ class DiscountController extends Controller
             'user_id' => ['integer', 'exists:users'],
         ]);
 
-        if (session()->has('discount')) {
-            $discount = Discount::where('code', session('discount'))->first();
-            if (($currentDate- strtotime($discount->created_at)) > 3600){
-                Discount::create([
-                    'value' => $value,
-                    'code' => $code,
-                    'user_id' => $userId,
-                ]);
-                session(['discount' => $code]);
-            }else{
-                return ['value' => $discount->value, 'code' => $discount->code];
-            }
-        }else{
+        $create = static function ($code, $value, $userId){
             Discount::create([
                 'value' => $value,
                 'code' => $code,
                 'user_id' => $userId,
             ]);
+        };
+
+        if (session()->has('discount')) {
+            $discount = Discount::where('code', session('discount'))->first();
+            if (($currentDate- strtotime($discount->created_at)) > 3600){
+                $create($code,$value,$userId);
+                session(['discount' => $code]);
+            }else{
+                return ['value' => $discount->value, 'code' => $discount->code];
+            }
+        }else{
+            $create($code,$value,$userId);
             session(['discount' => $code]);
         }
 
