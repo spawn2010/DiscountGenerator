@@ -1,0 +1,7 @@
+
+    Копировать myapp/.env.example -> myapp/.env
+    docker-compose up composer
+    docker-compose up -d
+    docker exec -it linksshortener_myapp_1 /bin/sh -> php artisan key:generate -> php artisan migrate
+    localhost:8000
+
